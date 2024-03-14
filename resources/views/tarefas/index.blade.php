@@ -124,25 +124,26 @@
                                 <i class="fa-regular fa-circle-play"></i>
                                 <input type="hidden" name="status" value="em_andamento">
                                 </button>
+                                <input class="fim" type="hidden" name="stop" id="btn_finalizar" value="ini">
                                 @elseif($tarefa->status == 'em_andamento')
                                 <button type="submit" class="btn btn-sm btn-tool d-sm-inline-block">
                                     <i class="fa-solid fa-pause"></i>
                                     <input type="hidden" name="status" value="pausada">
                                 </button>
-                                <button type="button" class="btn btn-sm btn-tool d-sm-inline-block" id="btn_finalizar" onclick="finalizarTarefa({{$tarefa->id}})">
+                                <button type="submit" class="btn btn-sm btn-tool d-sm-inline-block" onclick="finalizar()">
                                     <i class="fa-solid fa-stop"></i>
-                                    <input type="hidden" name="status_f" >
-                                    <meta name="csrf-token" content="{{ csrf_token() }}">
+                                    <input class="fim" type="hidden" name="stop" id="btn_finalizar" value="pause">
+                                    
                                 </button>
                                 @elseif($tarefa->status == 'pausada')
                                 <button type="submit" class="btn btn-sm btn-tool d-sm-inline-block">
                                     <i class="fa-solid fa-play"></i>
                                     <input type="hidden" name="status" value="em_andamento">
                                 </button>
-                                <button type="button" class="btn btn-sm btn-tool d-sm-inline-block" id="btn_finalizar" onclick="finalizarTarefa({{$tarefa->id}})">
+                                <button type="submit" class="btn btn-sm btn-tool d-sm-inline-block" onclick="finalizar()">
                                     <i class="fa-solid fa-stop"></i>
-                                    <input type="hidden" name="status_f" >
-                                    <meta name="csrf-token" content="{{ csrf_token() }}">
+                                    <input class="fim" type="hidden" name="stop" id="btn_finalizar" value="andamento">
+                                    
                                 </button>
                                 @endif
                                 </form>
@@ -176,22 +177,12 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-        function finalizarTarefa(id) {
-            $.ajax({
-                url: '/tarefas/finalizar/' + id,
-                type: 'PUT',
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    console.log(response);
-                    window.location.reload();
-                },
-                error: function(xhr) {
-                    console.error(xhr.responseText);
-                    window.location.reload();
-                }
-            });
+        function finalizar() {
+            var elementos = document.getElementsByClassName('fim');
+            for (var i = 0; i < elementos.length; i++) {
+                var elemento = elementos[i];
+                elemento.setAttribute('value', 'finalizar');
+            }
         }
     </script>
 

@@ -19,7 +19,6 @@ class CreateTimeLogsTable extends Migration
             $table->dateTime('start_time');
             $table->dateTime('end_time')->nullable();
             $table->timestamps();
-            $table->foreign('tarefas_id')->references('id')->on('tarefas')->onDelete('cascade');
         });
     }
 

@@ -27,11 +27,5 @@ class Tarefa extends Model
     {
         return $this->hasMany(TimeLog::class, 'tarefas_id');
     }
-
-    public function ultimoRegistroSemEndTime()
-    {
-        return $this->timeLogs()->whereNull('end_time')->latest()->first();
-    }
-
 }
 
