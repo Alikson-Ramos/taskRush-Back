@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TarefaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,3 +21,8 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::resource('tarefas', TarefaController::class);
+Route::put('/tarefas/status/{id}', [TarefaController::class, 'status'])->name('tarefas.status');
+Route::put('/tarefas/finalizar/{id}', [TarefaController::class, 'finalizar'])->name('tarefas.finalizar');
+
