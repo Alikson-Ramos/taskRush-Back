@@ -25,3 +25,4 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::resource('tarefas', TarefaController::class);
 Route::put('/tarefas/status/{id}', [TarefaController::class, 'status'])->name('tarefas.status');
 
+

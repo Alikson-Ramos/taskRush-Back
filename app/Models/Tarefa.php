@@ -34,12 +34,10 @@ class Tarefa extends Model
     {
         $ultimoRegistro = CalculaTimeLogService::calculo($this->id);
 
-        // Verifica se $ultimoRegistro é 0, se sim, não há registro
         if ($ultimoRegistro === 0) {
-            return null; // Retornar null para indicar que não há registro
+            return null;
         }
 
-        // Caso contrário, retorna o relacionamento necessário
         return $this->hasOne(TimeLog::class, 'tarefas_id')->where('id', $ultimoRegistro);
     }
 
