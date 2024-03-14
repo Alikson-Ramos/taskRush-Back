@@ -21,7 +21,5 @@ class TimeLog extends Model
     {
         return $this->belongsTo(Tarefa::class, 'tarefas_id');
     }
-
-    
 }
 

@@ -15,7 +15,7 @@ class CreateTimeLogsTable extends Migration
     {
         Schema::create('time_logs', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tarefas_id');
+            $table->integer('tarefas_id')->nullable();
             $table->dateTime('start_time');
             $table->dateTime('end_time')->nullable();
             $table->timestamps();

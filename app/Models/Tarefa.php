@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Services\CalculaTimeLogService;
+use Illuminate\Support\Facades\DB;
 
 class Tarefa extends Model
 {
@@ -26,6 +28,27 @@ class Tarefa extends Model
     public function timeLogs()
     {
         return $this->hasMany(TimeLog::class, 'tarefas_id');
+    }
+
+    public function timer()
+    {
+        $ultimoRegistro = CalculaTimeLogService::calculo($this->id);
+
+        // Verifica se $ultimoRegistro é 0, se sim, não há registro
+        if ($ultimoRegistro === 0) {
+            return null; // Retornar null para indicar que não há registro
+        }
+
+        // Caso contrário, retorna o relacionamento necessário
+        return $this->hasOne(TimeLog::class, 'tarefas_id')->where('id', $ultimoRegistro);
+    }
+
+    public function tempoDecorrido()
+    {
+        return DB::table('time_logs')
+            ->select(DB::raw('SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(end_time, start_time)))) AS tempo_decorrido'))
+            ->where('tarefas_id', $this->id)
+            ->value('tempo_decorrido');
     }
 }
 

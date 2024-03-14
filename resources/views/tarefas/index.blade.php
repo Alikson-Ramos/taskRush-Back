@@ -71,29 +71,26 @@
                 </thead>
                 <tbody>
                     @foreach ($tarefas as $tarefa)
-
                         <tr>
-                            @if($tarefa->ativo == 1)
-                                <td> {{ $tarefa->nome_tarefa }} </td>
-                                <td>
-                                    @php
-                                        $ultimoRegistroSemEndTime = $tarefa->ultimoRegistroSemEndTime();
-                                        $tempo = $ultimoRegistroSemEndTime ? $ultimoRegistroSemEndTime->start_time : null;
-                                    @endphp
-                                    <label id="tempo" value="{{ $tempo ? $tempo->format('d/m/Y H:i:s') : '00/00/00 00:00:00' }}" hidden></label>
-                                    <div id="tempoAtualizado"></div>
-                                </td>
-                                <td>{{ $tarefa->created_at->format('d/m/Y') }}</td>
-                            @else
-                                <td style="color: gray"> {{ $tarefa->nome_tarefa }} </td>
-                                <td>
-                                    <label id="tempo" value="00/00/00 00:00:00" hidden></label>
-                                    <div id="tempoAtualizado"></div>
-                                </td>
-                                <td style="color: gray">{{ $tarefa->created_at->format('d/m/Y') }}</td>
-                            @endif
-
+                            <td> {{ $tarefa->nome_tarefa }} </td>
                             <td>
+                                @if($tarefa->status == 'em_andamento')
+
+                                    @foreach ($tarefa->timeLogs as $timeLog)
+                                        @if($timeLog->end_time == null) 
+                                            <div class="timer" id="timer{{ $tarefa->id }}" data-start-time="{{ $timeLog->start_time }}">
+                                                {{ $timeLog->start_time }}
+                                            </div>
+                                        @endif
+                                    @endforeach 
+                                        @else
+                                        {{$tarefa->tempoDecorrido()}}
+                                @endif          
+                                </td>
+                                <td>
+                                    {{ $tarefa->created_at->format('d/m/Y') }}
+                                </td>
+                                <td>
                                 @if($tarefa->status == 'iniciar')
                                     <small class="badge badge-info">Iniciar</small>
                                 @elseif($tarefa->status == 'em_andamento')
@@ -120,13 +117,13 @@
                                     <input type="hidden" name="tarefa_id" value="{{$tarefa->id}}">
 
                                 @if($tarefa->status == 'iniciar')
-                                <button type="submit" class="btn btn-sm btn-tool d-sm-inline-block">
+                                <button type="submit" class="btn btn-sm btn-tool d-sm-inline-block" >
                                 <i class="fa-regular fa-circle-play"></i>
                                 <input type="hidden" name="status" value="em_andamento">
                                 </button>
                                 <input class="fim" type="hidden" name="stop" id="btn_finalizar" value="ini">
                                 @elseif($tarefa->status == 'em_andamento')
-                                <button type="submit" class="btn btn-sm btn-tool d-sm-inline-block">
+                                <button type="submit" class="btn btn-sm btn-tool d-sm-inline-block" >
                                     <i class="fa-solid fa-pause"></i>
                                     <input type="hidden" name="status" value="pausada">
                                 </button>
@@ -136,7 +133,7 @@
                                     
                                 </button>
                                 @elseif($tarefa->status == 'pausada')
-                                <button type="submit" class="btn btn-sm btn-tool d-sm-inline-block">
+                                <button type="submit" class="btn play btn-sm btn-tool d-sm-inline-block">
                                     <i class="fa-solid fa-play"></i>
                                     <input type="hidden" name="status" value="em_andamento">
                                 </button>
@@ -186,31 +183,59 @@
         }
     </script>
 
+    <!-- <script>
+            setInterval(function() {
+            document.querySelectorAll('.timer').forEach(function(element) {
+                var startTime = new Date(element.getAttribute('data-start-time'));
+                atualizarContador(startTime);
+            });
+        }, 1000);
+        function atualizarContador(startTime) {
+
+            var currentTime = new Date();
+
+            var diff = Math.abs(currentTime - startTime) / 1000;
+            var hours = Math.floor(diff / 3600);
+            var minutes = Math.floor((diff % 3600) / 60);
+            var seconds = Math.floor(diff % 60);
+
+            var formattedTime = hours.toString().padStart(2, '0') + ':' +
+                                minutes.toString().padStart(2, '0') + ':' +
+                                seconds.toString().padStart(2, '0');
+
+            document.querySelector('.timer').innerText = formattedTime;
+        }
+    </script>            -->
+
+
+
     <script>
-    function atualizarTempo() {
-        var tempo_data_str = document.getElementById('tempo').getAttribute('value');
-        var partesTempo = tempo_data_str.split(' ');
+    setInterval(function() {
+        var timerElements = document.querySelectorAll('.timer');
 
-        var dataPartes = partesTempo[0].split('/');
-        var horaPartes = partesTempo[1].split(':');
-        var tempoDefinido = new Date(dataPartes[2], dataPartes[1] - 1, dataPartes[0], horaPartes[0], horaPartes[1], horaPartes[2]);
-        var agora = new Date();
-        var diferenca = agora - tempoDefinido;
+        timerElements.forEach(function(element) {
+            var startTime = new Date(element.getAttribute('data-start-time'));
+            atualizarContador(startTime, element.id);
+        });
+    }, 1000);
 
-        var segundos = Math.floor(diferenca / 1000);
-        var minutos = Math.floor(segundos / 60);
-        var horas = Math.floor(minutos / 60);
-        var dias = Math.floor(horas / 24);
+    function atualizarContador(startTime, elementId) {
+        var currentTime = new Date();
 
-        var tempoAtualizadoHTML = dias + " dias, " + horas % 24 + " horas, " + minutos % 60 + " minutos, " + segundos % 60 + " segundos";
-        
-        var tempoAtualizadoElemento = document.getElementById('tempoAtualizado');
-        if (tempoAtualizadoElemento) {
-            tempoAtualizadoElemento.innerHTML = tempoAtualizadoHTML;
-        } else {
-            console.error("Elemento 'tempoAtualizado' não encontrado.");
+        var diff = Math.abs(currentTime - startTime) / 1000;
+        var hours = Math.floor(diff / 3600);
+        var minutes = Math.floor((diff % 3600) / 60);
+        var seconds = Math.floor(diff % 60);
+
+        var formattedTime = hours.toString().padStart(2, '0') + ':' +
+                            minutes.toString().padStart(2, '0') + ':' +
+                            seconds.toString().padStart(2, '0');
+
+        var timerElement = document.getElementById(elementId);
+        if (timerElement) {
+            timerElement.innerText = formattedTime;
         }
     }
-    setInterval(atualizarTempo, 1000);
-        </script>
+</script>
+
     @stop
