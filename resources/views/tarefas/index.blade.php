@@ -38,7 +38,7 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title"><i class="fa-solid fa-language" style="margin-right: 5px;"></i> Lista de Tarefas</h3>
+        <h3 class="card-title"><i class="fa-solid fa-list-check" style="margin-right: 5px;"></i> Lista de Tarefas</h3>
         <div class="card-tools d-flex align-items-center">
 
             <button type="button" class="btn btn-block btn-default btn-sm" onclick="window.location.href='{{ route('tarefas.create') }}'" style="margin-right: 10px;"> 
@@ -183,15 +183,17 @@
         }
     </script>
 
-    <!-- <script>
-            setInterval(function() {
-            document.querySelectorAll('.timer').forEach(function(element) {
+    <script>
+        setInterval(function() {
+            var timerElements = document.querySelectorAll('.timer');
+
+            timerElements.forEach(function(element) {
                 var startTime = new Date(element.getAttribute('data-start-time'));
-                atualizarContador(startTime);
+                atualizarContador(startTime, element.id);
             });
         }, 1000);
-        function atualizarContador(startTime) {
 
+        function atualizarContador(startTime, elementId) {
             var currentTime = new Date();
 
             var diff = Math.abs(currentTime - startTime) / 1000;
@@ -203,39 +205,10 @@
                                 minutes.toString().padStart(2, '0') + ':' +
                                 seconds.toString().padStart(2, '0');
 
-            document.querySelector('.timer').innerText = formattedTime;
+            var timerElement = document.getElementById(elementId);
+            if (timerElement) {
+                timerElement.innerText = formattedTime;
+            }
         }
-    </script>            -->
-
-
-
-    <script>
-    setInterval(function() {
-        var timerElements = document.querySelectorAll('.timer');
-
-        timerElements.forEach(function(element) {
-            var startTime = new Date(element.getAttribute('data-start-time'));
-            atualizarContador(startTime, element.id);
-        });
-    }, 1000);
-
-    function atualizarContador(startTime, elementId) {
-        var currentTime = new Date();
-
-        var diff = Math.abs(currentTime - startTime) / 1000;
-        var hours = Math.floor(diff / 3600);
-        var minutes = Math.floor((diff % 3600) / 60);
-        var seconds = Math.floor(diff % 60);
-
-        var formattedTime = hours.toString().padStart(2, '0') + ':' +
-                            minutes.toString().padStart(2, '0') + ':' +
-                            seconds.toString().padStart(2, '0');
-
-        var timerElement = document.getElementById(elementId);
-        if (timerElement) {
-            timerElement.innerText = formattedTime;
-        }
-    }
-</script>
-
-    @stop
+    </script>
+@stop

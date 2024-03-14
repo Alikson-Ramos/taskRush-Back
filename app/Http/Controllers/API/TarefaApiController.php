@@ -1,43 +1,37 @@
 <?php
+namespace App\Http\Controllers\API;
 
-namespace App\Http\Controllers;
-
+use App\Http\Controllers\Controller;
 use App\Models\Tarefa;
 use Illuminate\Http\Request;
 use App\Models\TimeLog;
 use App\Services\TimeLogService;
 
-class TarefaController extends Controller
+class TarefaApiController extends Controller
 {
     public function index()
     {
         $tarefas = Tarefa::all();
-        return view('tarefas.index', compact('tarefas'));
+        return response()->json($tarefas);
     }
 
-    public function create()
+    public function show($id)
     {
-        return view('tarefas.create');
+        $tarefa = Tarefa::findOrFail($id);
+        return response()->json($tarefa);
     }
 
     public function store(Request $request)
     {
-        Tarefa::create($request->all());
-        return redirect()->route('tarefas.index');
-    }
-
-    public function edit($id)
-    {
-        $tarefa = Tarefa::findOrFail($id);
-        return view('tarefas.edit', compact('tarefa'));
+        $tarefa = Tarefa::create($request->all());
+        return response()->json($tarefa, 201);
     }
 
     public function update(Request $request, $id)
     {
         $tarefa = Tarefa::findOrFail($id);
         $tarefa->update($request->all());
-        $mensagem = 'Tarefa <strong>' . $tarefa->nome_tarefa . '</strong> atualizada com sucesso!';
-        return redirect()->route('tarefas.index')->with('msgSuccess', $mensagem);
+        return response()->json($tarefa, 200);
     }
 
     public function status(Request $request)
@@ -54,20 +48,17 @@ class TarefaController extends Controller
                 ]);
             }
             $tarefa->update(['status' => 'finalizado']);
-            $mensagem = 'Tarefa <strong>' . $tarefa->nome_tarefa . '</strong> finalizada com sucesso!' ;
         } else {
             if($status['status'] == 'iniciar'){
                 $timeLog = TimeLog::create([
                     'tarefas_id' => $status['tarefa_id'],
                     'start_time' => now()
                 ]);
-                $mensagem = 'Status da tarefa <strong>' . $tarefa->nome_tarefa . '</strong> iniciada com sucesso!';
             }else if($status['status'] == 'em_andamento'){
                 $timeLog = TimeLog::create([
                     'tarefas_id' => $status['tarefa_id'],
                     'start_time' => now()
                 ]);
-                $mensagem = 'Status da tarefa <strong>' . $tarefa->nome_tarefa . '</strong> executada com sucesso!';
             }else if($status['status'] == 'pausada'){
                 $timeLogId = TimeLogService::ultimoRegistroSemEndTime($status['tarefa_id']);
     
@@ -77,11 +68,10 @@ class TarefaController extends Controller
                     'tarefas_id' => $status['tarefa_id'],
                     'end_time' => now()
                 ]);
-                $mensagem = 'Status da tarefa <strong>' . $tarefa->nome_tarefa . '</strong> pausada com sucesso!';
             }
             $tarefa->update(['status' => $status['status']]);
         }
-        return redirect()->route('tarefas.index')->with('msgSuccess', $mensagem);
+
+        return response()->json($tarefa, 201);
     }
 }
-
